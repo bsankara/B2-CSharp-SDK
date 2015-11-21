@@ -46,8 +46,8 @@ namespace B2_CSharp_SDK
         /// <param name="bucketName"> Name for the new bucket(unique)</param>
         /// <param name="bucketType">"allPrivate" - or - "allpublic"</param>
         /// </summary>
-        /// <returns> Bool success code. True if successful, false otherwise</returns>
-        public bool b2_create_bucket (string bucketName, string bucketType)
+        /// <returns> string bucketID</returns>
+        public string b2_create_bucket (string bucketName, string bucketType)
         {
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_create_bucket");
             string body =
@@ -68,9 +68,43 @@ namespace B2_CSharp_SDK
             {
                 var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
                 response.Close();
-                Console.WriteLine(responseString);
-                return true;
+                dynamic jsonData = JsonConvert.DeserializeObject(responseString);
+                return jsonData.bucketId;
             } else
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bucketId">ID of bucket to be deleted</param>
+        /// <returns>Bool success/failure</returns>
+        public bool b2_delete_bucket (string bucketId)
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_delete_bucket");
+            string body =
+                "{\"accountId\":\"" + accountID + "\",\n" +
+                "\"bucketId\":\"" + bucketId + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using (var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+
+            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return true;
+            }
+            else
             {
                 return false;
             }
