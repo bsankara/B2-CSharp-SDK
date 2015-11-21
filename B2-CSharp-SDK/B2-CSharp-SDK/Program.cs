@@ -13,6 +13,7 @@ namespace B2_CSharp_SDK
             string accountId = Console.ReadLine();
             string applicationKey = Console.ReadLine();
             B2SDK sdk = new B2SDK(accountId, applicationKey);
+            sdk.b2_create_bucket("BalajisAwesomeBucket", "allPrivate");
         }
     }
 }
