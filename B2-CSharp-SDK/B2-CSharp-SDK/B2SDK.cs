@@ -110,7 +110,10 @@ namespace B2_CSharp_SDK
             }
         }
         
-        
+        /// <summary>
+        /// Lists all buckets associated with current instance of the SDK
+        /// </summary>
+        /// <returns> JSON string of buckets as returned from backblaze API</returns>
         public string b2_list_buckets()
         {
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_list_buckets");
@@ -131,10 +134,17 @@ namespace B2_CSharp_SDK
             return responseString;
         }
 
-        public string b2_list_file_names(string bucketId)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bucketId"> ID fro bucket to get files from</param>
+        /// <param name="startFileName"> StartFileName to start with for next request</param>
+        /// <returns>JSON list of files in bucket specified</returns>
+        public string b2_list_file_names(string bucketId, string startFileName)
         {
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_list_file_names");
-            string body = "{\"bucketId\":\"" + bucketId + "\"}";
+            string body = "{\"bucketId\":\"" + bucketId + "\","
+                +         "\"startFileName\":\"" + startFileName + "\"}";
             var data = Encoding.UTF8.GetBytes(body);
 
             webRequest.Method = "POST";
