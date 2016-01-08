@@ -131,10 +131,10 @@ namespace B2_CSharp_SDK
             return responseString;
         }
 
-        public bool b2_list_file_names(string bucketId)
+        public string b2_list_file_names(string bucketId)
         {
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_list_file_names");
-            string body = "{\"bucketId\":\"}" + bucketId + "\"}";
+            string body = "{\"bucketId\":\"" + bucketId + "\"}";
             var data = Encoding.UTF8.GetBytes(body);
 
             webRequest.Method = "POST";
@@ -151,11 +151,11 @@ namespace B2_CSharp_SDK
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                return true;
+                return responseString;
             }
             else
             {
-                return false;
+                return "";
             }
         }
     }

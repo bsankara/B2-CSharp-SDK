@@ -24,7 +24,7 @@ namespace B2_CSharp_SDK
                 }
             }
 
-            Console.WriteLine(sdk.b2_list_buckets());
-        }
+            Console.WriteLine(sdk.b2_list_buckets()); 
+          }
     }
 }
