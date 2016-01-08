@@ -19,26 +19,6 @@ namespace B2_CSharp_SDK
         string downloadURL;
         bool authorized = false;
 
-        public class BucketJson
-        {
-            [JsonProperty("buckets")]
-            public Bucket Bucket { get; set; }
-        }
-        public class Bucket
-        {
-            [JsonProperty("bucketId")]
-            public string bucketId { get; set; }
-
-            [JsonProperty("accountId")]
-            public string accountId { get; set; }
-
-            [JsonProperty("bucketName")]
-            public string bucketName { get; set; }
-
-            [JsonProperty("bucketType")]
-            public string bucketType { get; set; }
-        }
-
         public B2SDK(string accountId, string applicationKey)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(BASE_BACKBLAZE_URL + "b2_authorize_account");
@@ -149,6 +129,34 @@ namespace B2_CSharp_SDK
             var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
             response.Close();
             return responseString;
+        }
+
+        public bool b2_list_file_names(string bucketId)
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_list_file_names");
+            string body = "{\"bucketId\":\"}" + bucketId + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using(var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+
+            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
