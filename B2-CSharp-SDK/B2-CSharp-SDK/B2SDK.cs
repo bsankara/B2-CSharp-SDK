@@ -137,7 +137,7 @@ namespace B2_CSharp_SDK
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="bucketId"> ID fro bucket to get files from</param>
+        /// <param name="bucketId"> ID for bucket to get files from</param>
         /// <param name="startFileName"> StartFileName to start with for next request</param>
         /// <returns>JSON list of files in bucket specified</returns>
         public string b2_list_file_names(string bucketId, string startFileName)
@@ -152,6 +152,45 @@ namespace B2_CSharp_SDK
             webRequest.ContentType = "application/json; charset=utf-8";
             webRequest.ContentLength = data.Length;
             using(var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+
+            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return responseString;
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Gets versions of every file in a bucket starting with the start file name
+        /// </summary>
+        /// <param name="bucketId"> id of bucket to search</param>
+        /// <param name="startFileName"> starting file name for files</param>
+        /// <returns> JSON string of all version of files </returns>
+        public string b2_list_file_versions(string bucketId, string startFileName)
+        {
+            if (bucketId == null)
+            {
+                return "";
+            }
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_list_file_versions");
+            string body = "{\"bucketId\":\"" + bucketId + "\","
+                + "\"startFileName\":\"" + startFileName + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using (var stream = webRequest.GetRequestStream())
             {
                 stream.Write(data, 0, data.Length);
                 stream.Close();
