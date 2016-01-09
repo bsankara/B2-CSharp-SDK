@@ -281,5 +281,30 @@ namespace B2_CSharp_SDK
 
             return fileBytes;
         }
+
+        /// <summary>
+        /// Downloads a file from b2 given a fileName and Bucket to download from
+        /// </summary>
+        /// <param name="fileName"> Name of file to download</param>
+        /// <param name="bucketName"> Name of bucket that file is stored in</param>
+        /// <returns> Byte array of downloaded file</returns>
+        public byte[] b2_download_file_by_name(string fileName, string bucketName)
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(String.Format("{0}/file/{1}/{2}", downloadURL, bucketName, fileName));
+            webRequest.Method = "GET";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            WebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            Stream responseStream = response.GetResponseStream();
+            byte[] fileBytes;
+            using (BinaryReader br = new BinaryReader(responseStream))
+            {
+                fileBytes = br.ReadBytes(500000);
+                br.Close();
+            }
+            responseStream.Close();
+            response.Close();
+
+            return fileBytes;
+        }
     }
 }
