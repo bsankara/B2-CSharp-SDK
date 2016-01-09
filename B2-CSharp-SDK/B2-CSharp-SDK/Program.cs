@@ -15,14 +15,6 @@ namespace B2_CSharp_SDK
             // This is all just testing code, it doesn't really matter what happens here
             B2SDK sdk = new B2SDK(accountId, applicationKey);
             string bucketID = sdk.b2_create_bucket("BalajisAwesomeBucket", "allPrivate");
-           if (bucketID != "")
-            {
-                Console.WriteLine("Bucket Created");
-                if (sdk.b2_delete_bucket(bucketID))
-                {
-                    Console.WriteLine("Delete successful");
-                }
-            }
 
             Console.WriteLine(sdk.b2_list_buckets()); 
           }

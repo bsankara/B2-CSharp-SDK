@@ -37,7 +37,7 @@ namespace B2_CSharp_SDK
                 accountID = accountId;
                 apiUrl = jsonData.apiUrl;
                 authorizationToken = jsonData.authorizationToken;
-                downloadURL = jsonData.downloadURL;
+                downloadURL = jsonData.downloadUrl;
                 authorized = true;
             }
         }
@@ -238,12 +238,48 @@ namespace B2_CSharp_SDK
             HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
             if (response.StatusCode == HttpStatusCode.OK)
             {
+                response.Close();
                 return true;
             }
             else
             {
+                response.Close();
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Downloads a file from b2 given a fileId
+        /// </summary>
+        /// <param name="fileId"> ID of file to download</param>
+        /// <returns>byte array of download data</returns>
+        public byte[] b2_download_file_by_id(string fileId)
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(downloadURL + "/b2api/v1/b2_download_file_by_id");
+            string body = "{\"fileId\":\"" + fileId + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using (var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+            WebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            Stream responseStream = response.GetResponseStream();
+            byte[] fileBytes;
+            using (BinaryReader br = new BinaryReader(responseStream))
+            {
+                fileBytes = br.ReadBytes(500000);
+                br.Close();
+            }
+
+            responseStream.Close();
+            response.Close();
+
+            return fileBytes;
         }
     }
 }
