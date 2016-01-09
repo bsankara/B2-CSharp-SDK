@@ -207,5 +207,43 @@ namespace B2_CSharp_SDK
                 return "";
             }
         }
+
+        /// <summary>
+        /// Deletes a specific version of a file given a filename and id
+        /// </summary>
+        /// <param name="fileName"> Name of file</param>
+        /// <param name="fileId"> Id of file to delete</param>
+        /// <returns> True if successful, false if unsuccessful</returns>
+        public bool b2_delete_file_version(string fileName, string fileId)
+        {
+            if (fileName == null || fileId == null)
+            {
+                return false;
+            }
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_delete_file_version");
+            string body =
+               "{\"fileName\":\"" + fileName + "\",\n" +
+               "\"fileId\":\"" + fileId + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using (var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+
+            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
