@@ -142,11 +142,11 @@ namespace B2_CSharp_SDK
         /// Lists all buckets associated with current instance of the SDK
         /// </summary>
         /// <returns> JSON string of buckets as returned from backblaze API</returns>
-        public string b2_list_buckets()
+        public List<B2Bucket> b2_list_buckets()
         {
             if (!authorized)
             {
-                return "";
+                return null;
             }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_list_buckets");
             string body = "{\"accountId\":\"" + accountID + "\"}";
@@ -163,7 +163,8 @@ namespace B2_CSharp_SDK
             WebResponse response = (HttpWebResponse)webRequest.GetResponse();
             var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
             response.Close();
-            return responseString;
+            B2BucketList bucketData = (B2BucketList)Newtonsoft.Json.JsonConvert.DeserializeObject(responseString, typeof(B2BucketList));
+            return bucketData.buckets;
         }
 
         /// <summary>

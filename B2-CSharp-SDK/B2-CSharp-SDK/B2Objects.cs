@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 // This is a class for storing all of the different objects that can be returned from b2
 public class B2Bucket
@@ -14,4 +15,9 @@ public class B2Bucket
         bucketName = paramBucketName;
         bucketType = paramBucketType;
     }
+}
+
+public class B2BucketList
+{
+    public List<B2Bucket> buckets { get; set; }
 }

@@ -24,6 +24,7 @@ namespace B2_CSharp_SDK
                 Console.WriteLine("Delete Successful");
             }
             deletedBucket = sdk.b2_delete_bucket("1d84064f074528d6581c0516");
+            List<B2Bucket> buckets = sdk.b2_list_buckets();
         }
     }
 }
