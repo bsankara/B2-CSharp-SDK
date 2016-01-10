@@ -359,6 +359,7 @@ namespace B2_CSharp_SDK
         /// <param name="fileId"> string file id </param>
         /// <returns> string json data of file info</returns>
         /// NOTE: this api isn't currently working (I think due to an error in Backblaze -- get_file_info in their web console returns a bad request as this does
+        /// Currently holding off on putting this into an object until the errors are fixes and I can actually test
         public string b2_get_file_info(string fileId)
         {
             if (!checkStringParamsNotEmpty(new string[] { fileId }) || !authorized)
@@ -471,12 +472,12 @@ namespace B2_CSharp_SDK
         /// </summary>
         /// <param name="bucketId"> Id of bucket to update</param>
         /// <param name="bucketType"> "allPrivate" or "allPublic" for private or public bucket</param>
-        /// <returns> Bool true or false corresponding to success</returns>
-        public bool b2_update_bucket(string bucketId, string bucketType)
+        /// <returns> B2Bucket -- the updated bucket after applying the changes</returns>
+        public B2Bucket b2_update_bucket(string bucketId, string bucketType)
         {
             if (!checkStringParamsNotEmpty(new string[] { bucketType, bucketId }) || !authorized)
             {
-                return false;
+                return null;
             }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_update_bucket");
             string body =
@@ -493,17 +494,19 @@ namespace B2_CSharp_SDK
                 stream.Write(data, 0, data.Length);
                 stream.Close();
             }
-            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-            if (response.StatusCode == HttpStatusCode.OK)
+            try
             {
-                response.Close();
-                return true;
+                HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                dynamic jsonData = JsonConvert.DeserializeObject(responseString);
+                B2Bucket returnData = new B2Bucket((String)jsonData.accountId, (String)jsonData.bucketId, (String)jsonData.bucketName, (String)jsonData.bucketType);
+                return returnData;
             }
-            else
+            // we catch ex in case we have a better way of logging errors to the user in the future
+            catch (Exception ex)
             {
-                response.Close();
-                return false;
-            }
+                return null;
+            };
         }
 
         public string b2_upload_file(byte[] bytes, string fileName, string bucketId)
