@@ -22,8 +22,22 @@ namespace B2_CSharp_SDK
         bool authorized = false;
         Dictionary<string,string> uploadUrls = new Dictionary<string, string>();
 
+        private bool checkStringParamsNotEmpty(string[] parameters)
+        {
+            foreach(string param in parameters) {
+                if (param == "" || param == null)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public B2SDK(string accountId, string applicationKey)
         {
+            if (!checkStringParamsNotEmpty(new string[] { accountId, applicationKey })) {
+                return;
+            }
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(BASE_BACKBLAZE_URL + "b2_authorize_account");
             string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes(accountId + ":" + applicationKey));
             request.Headers.Add("Authorization", "Basic " + credentials);
@@ -52,6 +66,10 @@ namespace B2_CSharp_SDK
         /// <returns> string bucketID</returns>
         public string b2_create_bucket (string bucketName, string bucketType)
         {
+            if (!checkStringParamsNotEmpty(new string[] { bucketName, bucketType }))
+            {
+                return "";
+            }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_create_bucket");
             string body =
                     "{\"accountId\":\"" + accountID + "\",\n" +
@@ -86,6 +104,10 @@ namespace B2_CSharp_SDK
         /// <returns>Bool success/failure</returns>
         public bool b2_delete_bucket (string bucketId)
         {
+            if (!checkStringParamsNotEmpty(new string[] { bucketId }))
+            {
+                return false;
+            }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_delete_bucket");
             string body =
                 "{\"accountId\":\"" + accountID + "\",\n" +
@@ -145,6 +167,10 @@ namespace B2_CSharp_SDK
         /// <returns>JSON list of files in bucket specified</returns>
         public string b2_list_file_names(string bucketId, string startFileName)
         {
+            if (!checkStringParamsNotEmpty(new string[] { bucketId }))
+            {
+                return "";
+            }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_list_file_names");
             string body = "{\"bucketId\":\"" + bucketId + "\","
                 +         "\"startFileName\":\"" + startFileName + "\"}";
@@ -180,7 +206,7 @@ namespace B2_CSharp_SDK
         /// <returns> JSON string of all version of files </returns>
         public string b2_list_file_versions(string bucketId, string startFileName)
         {
-            if (bucketId == null)
+            if (!checkStringParamsNotEmpty(new string[] { bucketId }))
             {
                 return "";
             }
@@ -219,7 +245,7 @@ namespace B2_CSharp_SDK
         /// <returns> True if successful, false if unsuccessful</returns>
         public bool b2_delete_file_version(string fileName, string fileId)
         {
-            if (fileName == null || fileId == null)
+            if (!checkStringParamsNotEmpty(new string[] { fileName, fileId }))
             {
                 return false;
             }
@@ -255,9 +281,13 @@ namespace B2_CSharp_SDK
         /// Downloads a file from b2 given a fileId
         /// </summary>
         /// <param name="fileId"> ID of file to download</param>
-        /// <returns>byte array of download data</returns>
+        /// <returns>Byte array of download data. Returns null if invalid fileId</returns>
         public byte[] b2_download_file_by_id(string fileId)
         {
+            if (!checkStringParamsNotEmpty(new string[] { fileId }))
+            {
+                return null;
+            }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(downloadURL + "/b2api/v1/b2_download_file_by_id");
             string body = "{\"fileId\":\"" + fileId + "\"}";
             var data = Encoding.UTF8.GetBytes(body);
@@ -290,9 +320,13 @@ namespace B2_CSharp_SDK
         /// </summary>
         /// <param name="fileName"> Name of file to download</param>
         /// <param name="bucketName"> Name of bucket that file is stored in</param>
-        /// <returns> Byte array of downloaded file</returns>
+        /// <returns> Byte array of downloaded file. Returns null if fileName/bucketname combo are invalid.</returns>
         public byte[] b2_download_file_by_name(string fileName, string bucketName)
         {
+            if (!checkStringParamsNotEmpty(new string[] { fileName, bucketName }))
+            {
+                return null;
+            }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(String.Format("{0}/file/{1}/{2}", downloadURL, bucketName, fileName));
             webRequest.Method = "GET";
             webRequest.Headers.Add("Authorization", authorizationToken);
@@ -315,9 +349,13 @@ namespace B2_CSharp_SDK
         /// </summary>
         /// <param name="fileId"> string file id </param>
         /// <returns> string json data of file info</returns>
-        /// NOTE: this api isn't currently working (I think due to an error in Backblaze -- getting info in their web console returns a bad request as this does
+        /// NOTE: this api isn't currently working (I think due to an error in Backblaze -- get_file_info in their web console returns a bad request as this does
         public string b2_get_file_info(string fileId)
         {
+            if (!checkStringParamsNotEmpty(new string[] { fileId }))
+            {
+                return "";
+            }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_get_file_info");
             string body = "{\"fileId\":\"" + fileId + "\"}";
             var data = Encoding.UTF8.GetBytes(body);
@@ -350,6 +388,10 @@ namespace B2_CSharp_SDK
         /// <returns>string upload url</returns>
         public string b2_get_upload_url(string bucketId)
         {
+            if (!checkStringParamsNotEmpty(new string[] { bucketId }))
+            {
+                return "";
+            }
             if (uploadUrls.ContainsKey(bucketId))
             {
                 return uploadUrls[bucketId];
@@ -384,6 +426,10 @@ namespace B2_CSharp_SDK
         /// <returns> Bool True if successful, false if any error</returns>
         public bool b2_hide_file(string bucketId, string fileName)
         {
+            if (!checkStringParamsNotEmpty(new string[] { fileName, bucketId }))
+            {
+                return false;
+            }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_hide_file");
             string body =
             "{\"bucketId\":\"" + bucketId + "\",\n" +
@@ -419,6 +465,10 @@ namespace B2_CSharp_SDK
         /// <returns> Bool true or false corresponding to success</returns>
         public bool b2_update_bucket(string bucketId, string bucketType)
         {
+            if (!checkStringParamsNotEmpty(new string[] { bucketType, bucketId }))
+            {
+                return false;
+            }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_update_bucket");
             string body =
             "{\"accountId\":\"" + accountID + "\",\n" +
@@ -449,6 +499,10 @@ namespace B2_CSharp_SDK
 
         public string b2_upload_file(byte[] bytes, string fileName, string bucketId)
         {
+            if (!checkStringParamsNotEmpty(new string[] { fileName, bucketId }))
+            {
+                return "";
+            }
             SHA1CryptoServiceProvider sh = new SHA1CryptoServiceProvider();
             sh.ComputeHash(bytes);
             byte[] hash = sh.Hash;
