@@ -63,12 +63,12 @@ namespace B2_CSharp_SDK
         /// <param name="bucketName"> Name for the new bucket(unique)</param>
         /// <param name="bucketType">"allPrivate" - or - "allpublic"</param>
         /// </summary>
-        /// <returns> string bucketID</returns>
-        public string b2_create_bucket (string bucketName, string bucketType)
+        /// <returns> B2Bucket object with created bucket. Returns null for failure.</returns>
+        public B2Bucket b2_create_bucket (string bucketName, string bucketType)
         {
             if (!checkStringParamsNotEmpty(new string[] { bucketName, bucketType }) || !authorized)
             {
-                return "";
+                return null;
             }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_create_bucket");
             string body =
@@ -90,10 +90,11 @@ namespace B2_CSharp_SDK
                 var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
                 response.Close();
                 dynamic jsonData = JsonConvert.DeserializeObject(responseString);
-                return jsonData.bucketId;
+                B2Bucket returnData = new B2Bucket((String)jsonData.accountId, (String)jsonData.bucketId, (String)jsonData.bucketName, (String)jsonData.bucketType);
+                return returnData;
             } else
             {
-                return "";
+                return null;
             }
         }
 
