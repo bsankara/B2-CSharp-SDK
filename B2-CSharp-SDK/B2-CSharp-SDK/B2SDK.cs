@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace B2_CSharp_SDK
         string apiUrl;
         string authorizationToken;
         string downloadURL;
+        string uploadAuthToken = "";
         bool authorized = false;
         Dictionary<string,string> uploadUrls = new Dictionary<string, string>();
 
@@ -370,7 +372,7 @@ namespace B2_CSharp_SDK
             response.Close();
             dynamic jsonData = JsonConvert.DeserializeObject(responseString);
             uploadUrls[bucketId] = jsonData.uploadUrl;
-            Console.WriteLine(uploadUrls[bucketId]);
+            uploadAuthToken = jsonData.authorizationToken;
             return uploadUrls[bucketId];
         }
 
@@ -442,6 +444,46 @@ namespace B2_CSharp_SDK
             {
                 response.Close();
                 return false;
+            }
+        }
+
+        public string b2_upload_file(byte[] bytes, string fileName, string bucketId)
+        {
+            SHA1CryptoServiceProvider sh = new SHA1CryptoServiceProvider();
+            sh.ComputeHash(bytes);
+            byte[] hash = sh.Hash;
+            StringBuilder sb = new StringBuilder();
+            foreach(byte b in hash)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+
+            string sha1 = sb.ToString();
+
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(b2_get_upload_url(bucketId));
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", uploadAuthToken);
+            webRequest.Headers.Add("X-Bz-File-Name", fileName);
+            webRequest.ContentType = "b2/x-auto";
+            webRequest.ContentLength = bytes.Length;
+            webRequest.Headers.Add("X-Bz-Content-Sha1", sha1);
+            using (var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(bytes, 0, bytes.Length);
+                stream.Close();
+            }
+
+            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                response.Close();
+                return responseString;
+            }
+            else
+            {
+                response.Close();
+                return "";
             }
         }
     }

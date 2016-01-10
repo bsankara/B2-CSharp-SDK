@@ -15,8 +15,9 @@ A c# sdk for Backblaze B2
 - b2_get_file_info
 - b2_get_upload_url
 - b2_hide_file
+- b2_update_bucket
+- b2_upload_file
 
 #API's To Be Added
 
-- b2_update_bucket
-- b2_upload_file
+NONE
