@@ -373,5 +373,40 @@ namespace B2_CSharp_SDK
             Console.WriteLine(uploadUrls[bucketId]);
             return uploadUrls[bucketId];
         }
+
+        /// <summary>
+        /// Hides a file by its name. It will still exist and can be downloaded by version.
+        /// </summary>
+        /// <param name="bucketId"> Id of the bucket</param>
+        /// <param name="fileName"> Id of the file</param>
+        /// <returns> Bool True if successful, false if any error</returns>
+        public bool b2_hide_file(string bucketId, string fileName)
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_hide_file");
+            string body =
+            "{\"bucketId\":\"" + bucketId + "\",\n" +
+            "\"fileName\":\"" + fileName + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using (var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                response.Close();
+                return true;
+            }
+            else
+            {
+                response.Close();
+                return false;
+            }
+        }
     }
 }
