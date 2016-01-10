@@ -306,5 +306,38 @@ namespace B2_CSharp_SDK
 
             return fileBytes;
         }
+
+        /// <summary>
+        /// Returns file info in string form for a given fileId
+        /// </summary>
+        /// <param name="fileId"> string file id </param>
+        /// <returns> string json data of file info</returns>
+        /// NOTE: this api isn't currently working (I think due to an error in Backblaze -- getting info in their web console returns a bad request as this does
+        public string b2_get_file_info(string fileId)
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_get_file_info");
+            string body = "{\"fileId\":\"" + fileId + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using (var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+
+            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return responseString;
+            }
+            else
+            {
+                return "";
+            }
+        }
     }
 }

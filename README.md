@@ -12,10 +12,10 @@ A c# sdk for Backblaze B2
 - b2_delete_file_version
 - b2_download_file_by_id
 - b2_download_file_by_name
+- b2_get_file_info
 
 #API's To Be Added
 
-- b2_get_file_info
 - b2_get_upload_url
 - b2_hide_file
 - b2_update_bucket
