@@ -408,5 +408,41 @@ namespace B2_CSharp_SDK
                 return false;
             }
         }
+
+        /// <summary>
+        /// Updates bucket information
+        /// </summary>
+        /// <param name="bucketId"> Id of bucket to update</param>
+        /// <param name="bucketType"> "allPrivate" or "allPublic" for private or public bucket</param>
+        /// <returns> Bool true or false corresponding to success</returns>
+        public bool b2_update_bucket(string bucketId, string bucketType)
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_update_bucket");
+            string body =
+            "{\"accountId\":\"" + accountID + "\",\n" +
+            "\"bucketId\":\"" + bucketId + "\",\n" +
+            "\"bucketType\":\"" + bucketType + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using (var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                response.Close();
+                return true;
+            }
+            else
+            {
+                response.Close();
+                return false;
+            }
+        }
     }
 }
