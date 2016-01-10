@@ -13,10 +13,10 @@ A c# sdk for Backblaze B2
 - b2_download_file_by_id
 - b2_download_file_by_name
 - b2_get_file_info
+- b2_get_upload_url
 
 #API's To Be Added
 
-- b2_get_upload_url
 - b2_hide_file
 - b2_update_bucket
 - b2_upload_file

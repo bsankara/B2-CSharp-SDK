@@ -18,6 +18,7 @@ namespace B2_CSharp_SDK
         string authorizationToken;
         string downloadURL;
         bool authorized = false;
+        Dictionary<string,string> uploadUrls = new Dictionary<string, string>();
 
         public B2SDK(string accountId, string applicationKey)
         {
@@ -338,6 +339,39 @@ namespace B2_CSharp_SDK
             {
                 return "";
             }
+        }
+
+        /// <summary>
+        /// Gets Upload Url for pushing files to a specific bucket.
+        /// </summary>
+        /// <param name="bucketId"> Id for bucket to get upload url for</param>
+        /// <returns>string upload url</returns>
+        public string b2_get_upload_url(string bucketId)
+        {
+            if (uploadUrls.ContainsKey(bucketId))
+            {
+                return uploadUrls[bucketId];
+            }
+
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_get_upload_url");
+            string body = "{\"bucketId\":\"" + bucketId + "\"}";
+            var data = Encoding.UTF8.GetBytes(body);
+            webRequest.Method = "POST";
+            webRequest.Headers.Add("Authorization", authorizationToken);
+            webRequest.ContentType = "application/json; charset=utf-8";
+            webRequest.ContentLength = data.Length;
+            using (var stream = webRequest.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+            }
+            WebResponse response = (HttpWebResponse)webRequest.GetResponse();
+            var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+            response.Close();
+            dynamic jsonData = JsonConvert.DeserializeObject(responseString);
+            uploadUrls[bucketId] = jsonData.uploadUrl;
+            Console.WriteLine(uploadUrls[bucketId]);
+            return uploadUrls[bucketId];
         }
     }
 }
