@@ -29,7 +29,7 @@ namespace B2_CSharp_SDK
 
             foreach(B2Bucket bucket in buckets)
             {
-                foreach(B2File file in sdk.b2_list_file_names(bucket.bucketId, "").files)
+                foreach(B2File file in sdk.b2_list_file_versions(bucket.bucketId, "").files)
                 {
                     sdk.b2_delete_file_version(file.fileName, file.fileId);
                 }

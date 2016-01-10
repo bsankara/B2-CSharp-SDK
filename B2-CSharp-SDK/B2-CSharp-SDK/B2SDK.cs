@@ -172,7 +172,7 @@ namespace B2_CSharp_SDK
         /// </summary>
         /// <param name="bucketId"> ID for bucket to get files from</param>
         /// <param name="startFileName"> StartFileName to start with for next request</param>
-        /// <returns>JSON list of files in bucket specified</returns>
+        /// <returns>B2FileList -- list of files in bucket</returns>
         public B2FileList b2_list_file_names(string bucketId, string startFileName)
         {
             if (!checkStringParamsNotEmpty(new string[] { bucketId }) || !authorized)
@@ -211,12 +211,12 @@ namespace B2_CSharp_SDK
         /// </summary>
         /// <param name="bucketId"> id of bucket to search</param>
         /// <param name="startFileName"> starting file name for files</param>
-        /// <returns> JSON string of all version of files </returns>
-        public string b2_list_file_versions(string bucketId, string startFileName)
+        /// <returns> B2FileList -- list of files in bucket </returns>
+        public B2FileList b2_list_file_versions(string bucketId, string startFileName)
         {
             if (!checkStringParamsNotEmpty(new string[] { bucketId }) || !authorized)
             {
-                return "";
+                return null;
             }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_list_file_versions");
             string body = "{\"bucketId\":\"" + bucketId + "\","
@@ -233,16 +233,17 @@ namespace B2_CSharp_SDK
                 stream.Close();
             }
 
-            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-            if (response.StatusCode == HttpStatusCode.OK)
+            try
             {
+                HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
                 var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                return responseString;
+                B2FileList fileList = (B2FileList)Newtonsoft.Json.JsonConvert.DeserializeObject(responseString, typeof(B2FileList));
+                return fileList;
             }
-            else
+            catch (Exception ex)
             {
-                return "";
-            }
+                return null;
+            };
         }
 
         /// <summary>
