@@ -17,6 +17,13 @@ namespace B2_CSharp_SDK
             B2SDK sdk = new B2SDK(accountId, applicationKey);
             B2Bucket newBucket = sdk.b2_create_bucket("ThisIsAnAwesomeBucket", "allPrivate");
             Console.WriteLine(newBucket.accountId + newBucket.bucketId + newBucket.bucketName + newBucket.bucketType);
+
+            B2Bucket deletedBucket = sdk.b2_delete_bucket(newBucket.bucketId);
+            if (deletedBucket.bucketId == newBucket.bucketId)
+            {
+                Console.WriteLine("Delete Successful");
+            }
+            deletedBucket = sdk.b2_delete_bucket("1d84064f074528d6581c0516");
         }
     }
 }

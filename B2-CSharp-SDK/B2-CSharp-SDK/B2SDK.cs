@@ -102,12 +102,12 @@ namespace B2_CSharp_SDK
         /// 
         /// </summary>
         /// <param name="bucketId">ID of bucket to be deleted</param>
-        /// <returns>Bool success/failure</returns>
-        public bool b2_delete_bucket (string bucketId)
+        /// <returns>Object for bucket that was deleted</returns>
+        public B2Bucket b2_delete_bucket (string bucketId)
         {
             if (!checkStringParamsNotEmpty(new string[] { bucketId }) || !authorized)
             {
-                return false;
+                return null;
             }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_delete_bucket");
             string body =
@@ -123,17 +123,19 @@ namespace B2_CSharp_SDK
                 stream.Write(data, 0, data.Length);
                 stream.Close();
             }
-
-            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-            if (response.StatusCode == HttpStatusCode.OK)
+            try
             {
+                HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
                 var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                return true;
+                dynamic jsonData = JsonConvert.DeserializeObject(responseString);
+                B2Bucket returnData = new B2Bucket((String)jsonData.accountId, (String)jsonData.bucketId, (String)jsonData.bucketName, (String)jsonData.bucketType);
+                return returnData;
             }
-            else
+            // we catch ex in case we have a better way of logging errors to the user in the future
+            catch (Exception ex)
             {
-                return false;
-            }
+                return null;
+            };
         }
         
         /// <summary>
