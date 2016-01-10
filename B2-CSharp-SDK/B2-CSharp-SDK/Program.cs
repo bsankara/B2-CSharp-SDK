@@ -23,8 +23,17 @@ namespace B2_CSharp_SDK
             {
                 Console.WriteLine("Delete Successful");
             }
-            deletedBucket = sdk.b2_delete_bucket("1d84064f074528d6581c0516");
+
+            // fun test code that will delete all files in our buckets!!
             List<B2Bucket> buckets = sdk.b2_list_buckets();
+
+            foreach(B2Bucket bucket in buckets)
+            {
+                foreach(B2File file in sdk.b2_list_file_names(bucket.bucketId, "").files)
+                {
+                    sdk.b2_delete_file_version(file.fileName, file.fileId);
+                }
+            }
         }
     }
 }
