@@ -37,3 +37,15 @@ public class B2File
     public string size { get; set; }
     public string uploadTimeStamp { get; set; }
 }
+
+public class B2FileInfo
+{
+    public string accountId { get; set; }
+    public string bucketId { get; set; }
+    public string contentLength { get; set; }
+    public string contentSha1 { get; set; }
+    public string contentType { get; set; }
+    public string fileId { get; set; }
+    public object fileInfo { get; set; }
+    public string fileName { get; set; }
+}

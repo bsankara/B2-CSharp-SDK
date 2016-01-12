@@ -357,14 +357,12 @@ namespace B2_CSharp_SDK
         /// Returns file info in string form for a given fileId
         /// </summary>
         /// <param name="fileId"> string file id </param>
-        /// <returns> string json data of file info</returns>
-        /// NOTE: this api isn't currently working (I think due to an error in Backblaze -- get_file_info in their web console returns a bad request as this does
-        /// Currently holding off on putting this into an object until the errors are fixes and I can actually test
-        public string b2_get_file_info(string fileId)
+        /// <returns> B2FileInfo object of file information</returns>
+        public B2FileInfo b2_get_file_info(string fileId)
         {
             if (!checkStringParamsNotEmpty(new string[] { fileId }) || !authorized)
             {
-                return "";
+                return null;
             }
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(apiUrl + "/b2api/v1/b2_get_file_info");
             string body = "{\"fileId\":\"" + fileId + "\"}";
@@ -379,16 +377,17 @@ namespace B2_CSharp_SDK
                 stream.Close();
             }
 
-            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-            if (response.StatusCode == HttpStatusCode.OK)
+            try
             {
+                HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
                 var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                return responseString;
+                B2FileInfo fileInfo = (B2FileInfo)Newtonsoft.Json.JsonConvert.DeserializeObject(responseString, typeof(B2FileInfo));
+                return fileInfo;
             }
-            else
+            catch (Exception ex)
             {
-                return "";
-            }
+                return null;
+            };
         }
 
         /// <summary>
